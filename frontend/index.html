@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101722">
+    <title>VoiceCheck — Cognitive Speech Screening & Research Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark font-medium">
+    <div class="app-shell">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="appSidebar">
+            <a href="#home" class="brand" id="brandLink">
+                <span class="brand-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round">
+                        <path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/>
+                    </svg>
+                </span>
+                <span class="brand-name">Voice<span>Check</span></span>
+            </a>
+
+            <div class="nav-label">MAIN SCREENING</div>
+            <nav class="nav-menu">
+                <a class="nav-item active" href="#home" data-tab="home" id="tabNavHome">
+                    <span class="nav-icon" aria-hidden="true">🏠</span> Home
+                </a>
+                <a class="nav-item" href="#record" data-tab="record" id="tabNavRecord">
+                    <span class="nav-icon" aria-hidden="true">🎙️</span> Microphone Check
+                </a>
+                <a class="nav-item" href="#batch" data-tab="batch" id="tabNavBatch">
+                    <span class="nav-icon" aria-hidden="true">📁</span> Check Multiple Files
+                </a>
+                <a class="nav-item" href="#history" data-tab="history" id="tabNavHistory">
+                    <span class="nav-icon" aria-hidden="true">🕒</span> Past Results
+                </a>
+                <a class="nav-item" href="#compare" data-tab="compare" id="tabNavCompare">
+                    <span class="nav-icon" aria-hidden="true">⚖️</span> Compare Results
+                </a>
+            </nav>
+
+            <div class="nav-label">RESEARCH &amp; TOOLS</div>
+            <nav class="nav-menu">
+                <a class="nav-item" href="#model-eval" data-tab="model-eval" id="tabNavEval">
+                    <span class="nav-icon" aria-hidden="true">📈</span> How Well AI Works
+                </a>
+                <a class="nav-item" href="#dataset" data-tab="dataset" id="tabNavDataset">
+                    <span class="nav-icon" aria-hidden="true">📚</span> Explore Dataset
+                </a>
+                <a class="nav-item" href="#settings" data-tab="settings" id="tabNavSettings">
+                    <span class="nav-icon" aria-hidden="true">⚙️</span> Settings &amp; Privacy
+                </a>
+                <a class="nav-item" href="#system" data-tab="system" id="tabNavSystem">
+                    <span class="nav-icon" aria-hidden="true">💻</span> App Status
+                </a>
+                <a class="nav-item" href="#help" data-tab="help" id="tabNavHelp">
+                    <span class="nav-icon" aria-hidden="true">❓</span> Help &amp; FAQs
+                </a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <div class="status-dot" id="sidebarStatusDot" aria-hidden="true"></div>
+                <div>
+                    <div class="status-title">App Status</div>
+                    <div class="status-subtitle" id="systemStatusText">Ready to check</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="breadcrumb">
+                    <span id="breadcrumbSection">Home</span>
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-current" id="breadcrumbPage">Check a Voice Recording</span>
+                </div>
+                <div class="topbar-right">
+                    <span class="live-dot" aria-hidden="true"></span>
+                    <span id="topbarModeLabel">AI Speech Screening</span>
+                </div>
+            </header>
+
+            <!-- TAB 1: HOME & SINGLE AUDIO CHECK -->
+            <div class="tab-pane active" id="pane-home">
+                <!-- Page Heading & Introduction -->
+                <section class="page-heading">
+                    <div class="eyebrow">VOICE SCREENING TOOL</div>
+                    <h1>Voice Check, <span>Simple and Clear.</span></h1>
+                    <p class="lead-text">
+                        This app studies features of a voice recording to explore signs that may be linked to changes in memory and thinking. Choose a recording to get an experimental screening result. This result cannot diagnose a medical condition.
+                    </p>
+                    <div class="quick-actions">
+                        <button type="button" class="action-btn primary-action" id="chooseRecordingTopBtn">
+                            <span aria-hidden="true">📁</span> Choose Recording
+                        </button>
+                        <button type="button" class="action-btn secondary-action" id="recordMicTopBtn">
+                            <span aria-hidden="true">🎙️</span> Record Microphone
+                        </button>
+                        <button type="button" class="action-btn secondary-action" id="getHelpTopBtn">
+                            <span aria-hidden="true">❓</span> How It Works
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Content Grid: Primary column (Upload & Result) + Secondary column (Guide & Tips) -->
+                <section class="content-grid">
+                    <div class="primary-column">
+
+                        <!-- Step 1: Upload Panel -->
+                        <div class="panel upload-panel" id="check-recording">
+                            <div class="section-heading">
+                                <div>
+                                    <div class="step-label">STEP 1</div>
+                                    <h2>Choose a Voice Recording</h2>
+                                    <p>Upload a voice recording from your phone, laptop, or voice recorder.</p>
+                                </div>
+                                <div class="heading-icon" aria-hidden="true">🎙️</div>
+                            </div>
+
+                            <!-- Drop Zone -->
+                            <label class="upload-zone" id="dropZone" for="audioFile">
+                                <input type="file" id="audioFile"
+                                       accept=".wav,.mp3,.m4a,.aac,.ogg,.flac,.opus,.webm,.mp4,.3gp,audio/*,video/mp4,video/3gpp">
+                                <div class="upload-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" stroke-width="1.6"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 16V4m-5 5 5-5 5 5"/>
+                                        <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+                                    </svg>
+                                </div>
+                                <h3>Choose a voice recording from your device</h3>
+                                <p>Drag and drop your audio file here, or <span class="browse-text">browse files</span></p>
+                                <div class="file-rules">
+                                    <span>WAV</span><span>MP3</span><span>M4A</span><span>AAC</span>
+                                    <span>OGG</span><span>FLAC</span><span>WebM</span>
+                                    <span>Up to 25 MB</span>
+                                    <span>At least 3 seconds</span>
+                                </div>
+                            </label>
+
+                            <!-- Selected File Preview -->
+                            <div class="selected-file hidden" id="selectedFile">
+                                <div class="file-icon" aria-hidden="true">🎵</div>
+                                <div class="file-details">
+                                    <div class="file-name" id="fileName">recording.wav</div>
+                                    <div class="file-meta" id="fileMeta">Your recording is ready to check</div>
+                                </div>
+                                <button type="button" class="remove-file"
+                                        id="removeFile" aria-label="Remove recording" title="Remove recording">×</button>
+                            </div>
+
+                            <!-- Audio Quality Badge & Fast Check Preview -->
+                            <div class="quality-badge hidden" id="qualityBadge">
+                                <div class="quality-badge-header">
+                                    <span class="badge-tag" id="badgeTag">Checking quality...</span>
+                                    <span class="badge-snr" id="badgeSnr"></span>
+                                </div>
+                                <p class="quality-message" id="qualityMessage"></p>
+                                <div class="quality-suggestions" id="qualitySuggestions"></div>
+                            </div>
+
+                            <!-- Preprocessing & Audio Player Preview -->
+                            <div class="audio-playback-preview hidden" id="audioPlaybackPreview">
+                                <div class="player-heading">Recording Playback &amp; Audio Preview:</div>
+                                <audio controls id="mainAudioPlayer" class="custom-audio-player"></audio>
+                                <div class="prep-info" id="prepInfoText"></div>
+                            </div>
+
+                            <!-- Status / Error Notification -->
+                            <div class="form-error hidden" id="formError" role="alert"></div>
+
+                            <!-- Action Button -->
+                            <button type="button" class="analyze-button" id="analyzeButton" disabled>
+                                <span class="button-icon" id="buttonIcon" aria-hidden="true">▶</span>
+                                <span id="buttonText">Start Check</span>
+                                <span class="button-arrow" id="buttonArrow" aria-hidden="true">→</span>
+                            </button>
+                            <p class="privacy-note">
+                                🔒 Privacy note: Your voice file is checked locally and securely. Please choose an audio recording you have permission to use.
+                            </p>
+                        </div>
+
+                        <!-- Step 2: Results Panel -->
+                        <div class="panel result-panel" id="results">
+                            <div class="section-heading">
+                                <div>
+                                    <div class="step-label">STEP 2</div>
+                                    <h2>Screening Result</h2>
+                                    <p>Here is what the AI found in your voice recording.</p>
+                                </div>
+                                <div class="heading-icon result-heading-icon" aria-hidden="true">📊</div>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div class="empty-results" id="emptyResults">
+                                <div class="empty-graphic" aria-hidden="true">
+                                    <div class="wave wave-one"></div>
+                                    <div class="wave wave-two"></div>
+                                    <div class="wave wave-three"></div>
+                                    <span>🎵</span>
+                                </div>
+                                <h3>Your screening result will appear here</h3>
+                                <p>Choose a voice recording and select “Start Check” to begin.</p>
+                            </div>
+
+                            <!-- Filled Result State -->
+                            <div class="result-content hidden" id="resultContent">
+                                <!-- Primary Result Card -->
+                                <div class="result-overview" id="resultCard">
+                                    <div>
+                                        <div class="result-caption">SCREENING SUMMARY</div>
+                                        <h3 id="predictionLabel">Screening Result</h3>
+                                        <p id="predictionDescription"></p>
+                                    </div>
+                                    <div class="result-mark" id="resultMark" aria-hidden="true">✓</div>
+                                </div>
+
+                                <!-- AI Result Scores -->
+                                <div class="probability-section">
+                                    <div class="probability-header">
+                                        <div>
+                                            <div class="probability-title">AI Result Scores</div>
+                                            <p class="probability-help">How closely your recording's sound features match patterns found in our study groups.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="probability-row">
+                                        <div class="probability-label">
+                                            <span>Typical voice pattern</span>
+                                            <strong id="cnValue">—</strong>
+                                        </div>
+                                        <div class="progress-track" aria-label="Typical voice pattern score">
+                                            <div class="progress-fill cn-fill" id="cnBar"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="probability-row">
+                                        <div class="probability-label">
+                                            <span>Pattern with cognitive changes</span>
+                                            <strong id="adValue">—</strong>
+                                        </div>
+                                        <div class="progress-track" aria-label="Pattern with cognitive changes score">
+                                            <div class="progress-fill ad-fill" id="adBar"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Voice Details Cards Grid -->
+                                <div class="voice-details-grid">
+                                    <div class="detail-card">
+                                        <span class="detail-label">Recording Length</span>
+                                        <strong id="audioDuration">—</strong>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="detail-label">Speaking Time</span>
+                                        <strong id="speakingRatioText">—</strong>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="detail-label">Pitch Variation</span>
+                                        <strong id="pitchVariationText">—</strong>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="detail-label">Audible Pauses</span>
+                                        <strong id="pauseCountText">—</strong>
+                                    </div>
+                                </div>
+
+                                <!-- Extended Acoustic Biomarker Cards -->
+                                <div class="voice-details-grid hidden" id="acousticBiomarkerCards">
+                                    <!-- Populated dynamically by renderAcousticBiomarkers() -->
+                                </div>
+
+                                <!-- Speech Visualizations: Real Waveform & Pitch Graph -->
+                                <div class="speech-visuals-panel">
+                                    <div class="visuals-title">Speech Visuals (Recorded Voice Features)</div>
+                                    <div class="visual-canvas-container">
+                                        <div class="visual-sublabel">Voice Energy Envelope (Waveform):</div>
+                                        <canvas id="waveformCanvas" width="600" height="90"></canvas>
+                                    </div>
+                                    <div class="visual-canvas-container">
+                                        <div class="visual-sublabel">Pitch Variation Contour (Hz over time):</div>
+                                        <canvas id="pitchCanvas" width="600" height="90"></canvas>
+                                    </div>
+                                    <div class="visual-canvas-container">
+                                        <div class="visual-sublabel">Sound Frequency Map (Spectrogram):</div>
+                                        <canvas id="spectrogramCanvas" width="600" height="60"></canvas>
+                                    </div>
+                                    <div class="pause-timeline-container" id="pauseTimelineContainer">
+                                        <div class="visual-sublabel">Voice &amp; Pause Timeline:</div>
+                                        <div class="timeline-bar" id="timelineBar"></div>
+                                        <div class="timeline-legend">
+                                            <span><span class="legend-swatch speech"></span> Active Speech</span>
+                                            <span><span class="legend-swatch pause"></span> Natural Pauses (&ge;300ms)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Speech-to-Text / Words Spoken Section -->
+                                <div class="stt-panel" id="sttPanel">
+                                    <div class="stt-header">
+                                        <div class="stt-title">Words Spoken (Speech Transcription)</div>
+                                        <button type="button" class="btn-small" id="triggerTranscribeBtn">Transcribe Audio</button>
+                                    </div>
+                                    <p class="stt-text" id="sttTranscriptText">Click "Transcribe Audio" to recognize words from this recording.</p>
+                                    <div class="stt-confidence" id="sttConfidenceText"></div>
+                                </div>
+
+                                <!-- Linguistic Features Panel (shown when transcription succeeds) -->
+                                <div class="voice-details-grid hidden" id="linguisticFeaturesPanel" style="margin-top:0.75rem;">
+                                    <div class="detail-card">
+                                        <span class="detail-label" title="Total number of words spoken">Total Words Spoken</span>
+                                        <strong id="lingWordCount">—</strong>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="detail-label" title="Type-Token Ratio: how many unique words vs. total words (higher = richer vocabulary)">Vocabulary Variety (TTR)</span>
+                                        <strong id="lingTTR">—</strong>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="detail-label" title="Filler word ratio: percentage of um, uh, like, etc.">Filler Words Used</span>
+                                        <strong id="lingFillers">—</strong>
+                                    </div>
+                                    <div class="detail-card">
+                                        <span class="detail-label" title="Speaking rate in words per minute">Speaking Speed</span>
+                                        <strong id="lingWPM">—</strong>
+                                    </div>
+                                </div>
+
+                                <!-- Plain-English Meaning & Health Caution -->
+                                <div class="result-explanation" id="resultExplanation">
+                                    These AI Result Scores show how similar the sound features of your recording are to patterns learned from study recordings. They do not represent a person's medical risk or diagnose any condition.
+                                </div>
+
+                                <div class="medical-caution-card">
+                                    <div class="caution-header">
+                                        <span class="caution-icon" aria-hidden="true">🩺</span>
+                                        <strong>Important Health Notice</strong>
+                                    </div>
+                                    <p>
+                                        This screening tool is an experimental system and cannot diagnose, confirm, or rule out Alzheimer's disease, dementia, or any other health condition. Many everyday factors—including microphone quality, tiredness, accent, or background noise—can affect voice patterns.
+                                    </p>
+                                    <p class="caution-action">
+                                        If you or a loved one are concerned about memory, thinking, or speech, please consult a qualified doctor or healthcare professional for proper medical evaluation.
+                                    </p>
+                                </div>
+
+                                <!-- Research Notes & Feedback Box -->
+                                <div class="notes-panel">
+                                    <div class="notes-title">Research Notes &amp; Observation</div>
+                                    <textarea id="analysisNotesInput" rows="2" placeholder="Add optional private notes about this recording (e.g. background condition, speaker observations)..."></textarea>
+                                    <div class="notes-actions">
+                                        <button type="button" class="btn-small secondary" id="saveNotesBtn">Save Note</button>
+                                        <span class="notes-status" id="notesStatusText"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Optional Collapsible Technical Details for Researchers & Students -->
+                                <details class="technical-details" id="techDetails">
+                                    <summary>
+                                        <span class="summary-title">More Details (For Students &amp; Researchers)</span>
+                                        <span class="summary-hint">Click to show raw model values and voice details</span>
+                                    </summary>
+                                    <div class="technical-content">
+                                        <div class="tech-item">
+                                            <span>Internal Model Label:</span>
+                                            <strong id="rawPrediction">—</strong>
+                                        </div>
+                                        <div class="tech-item">
+                                            <span>Study Group Scores:</span>
+                                            <strong id="rawScores">—</strong>
+                                        </div>
+                                        <div class="tech-item">
+                                            <span>Model Type:</span>
+                                            <span>Logistic Regression (45 Voice Features, v2.0.0)</span>
+                                        </div>
+                                        <div class="tech-item">
+                                            <span>Voice Details Evaluated:</span>
+                                            <span>Pitch (F0), Energy (RMS), Pauses/Quiet Ratios, 13 Sound Pattern (MFCC) Coefficients</span>
+                                        </div>
+                                        <div class="tech-item">
+                                            <span>Database Record ID:</span>
+                                            <strong id="recordIdText">—</strong>
+                                        </div>
+                                    </div>
+                                </details>
+
+                                <!-- Results Action Buttons -->
+                                <div class="result-actions">
+                                    <button type="button" class="btn-action secondary" id="analyzeAnother">
+                                        <span aria-hidden="true">🔄</span> Try Another Recording
+                                    </button>
+                                    <button type="button" class="btn-action primary" id="downloadPdfBtn">
+                                        <span aria-hidden="true">📥</span> Download PDF Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Column: Quick Guide, Tips, and Requirements -->
+                    <aside class="secondary-column">
+                        <!-- Quick Guide -->
+                        <div class="panel guide-panel" id="how-it-works">
+                            <div class="side-card-top">
+                                <div class="side-icon" aria-hidden="true">📖</div>
+                                <span class="step-label">QUICK GUIDE</span>
+                            </div>
+                            <h2>How it works</h2>
+                            <p class="guide-intro">Three simple steps to check a voice recording.</p>
+
+                            <div class="guide-step">
+                                <span class="guide-number">1</span>
+                                <div>
+                                <h3>Choose a voice recording</h3>
+                                <p>Select an audio file recorded on a phone, laptop, or voice recorder (WAV, MP3, M4A, AAC, FLAC, OGG, WebM).</p>
+                                </div>
+                            </div>
+                            <div class="guide-step">
+                                <span class="guide-number">2</span>
+                                <div>
+                                    <h3>Wait while the app checks it</h3>
+                                    <p>The app studies voice features such as pitch, pauses, energy, and rhythm.</p>
+                                </div>
+                            </div>
+                            <div class="guide-step">
+                                <span class="guide-number">3</span>
+                                <div>
+                                    <h3>Read the result and explanation</h3>
+                                    <p>See what pattern the AI noticed and read clear, plain-language guidance on what the result means.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Helpful Recording Tips -->
+                        <div class="note-card" id="help-section">
+                            <div class="note-icon" aria-hidden="true">💡</div>
+                            <h3>Tips for a clear check</h3>
+                            <ul class="tips-list">
+                                <li>Record in a quiet room with minimal background noise.</li>
+                                <li>Speak at a natural, comfortable speed and volume.</li>
+                                <li>Keep the recording at least 3 seconds long so the AI has enough speech to check.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Supported File Requirements -->
+                        <div class="supported-card">
+                            <div class="supported-heading">AUDIO REQUIREMENTS</div>
+                            <div class="requirement">
+                                <span>Supported File Types</span>
+                                <strong>WAV, MP3, M4A, AAC, OGG, FLAC, WebM</strong>
+                            </div>
+                            <div class="requirement">
+                                <span>Maximum File Size</span>
+                                <strong>Up to 25 MB</strong>
+                            </div>
+                            <div class="requirement">
+                                <span>Recording Length</span>
+                                <strong>At least 3 seconds</strong>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+            </div>
+
+            <!-- TAB 2: LIVE MICROPHONE RECORDING -->
+            <div class="tab-pane hidden" id="pane-record">
+                <section class="page-heading">
+                    <div class="eyebrow">MICROPHONE RECORDING</div>
+                    <h1>Check Your Voice <span>Live.</span></h1>
+                    <p class="lead-text">
+                        Speak directly into your computer or phone microphone. You can record, listen back to check quality, and submit when ready.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel mic-panel">
+                        <div class="mic-controls">
+                            <div class="mic-visualizer-container">
+                                <canvas id="micVisualizerCanvas" width="500" height="100"></canvas>
+                            </div>
+                            <div class="record-timer" id="recordTimer">00:00</div>
+                            <div class="mic-status-msg" id="micStatusMsg">Click "Start Recording" and speak naturally.</div>
+
+                            <div class="mic-buttons-row">
+                                <button type="button" class="btn-action primary" id="startRecordBtn">
+                                    <span aria-hidden="true">🔴</span> Start Recording
+                                </button>
+                                <button type="button" class="btn-action secondary hidden" id="stopRecordBtn">
+                                    <span aria-hidden="true">⏹️</span> Stop Recording
+                                </button>
+                                <button type="button" class="btn-action secondary hidden" id="reRecordBtn">
+                                    <span aria-hidden="true">🔄</span> Record Again
+                                </button>
+                            </div>
+
+                            <!-- Recorded audio playback preview -->
+                            <div class="recorded-preview hidden" id="recordedPreview">
+                                <div class="player-heading">Listen to your recording:</div>
+                                <audio controls id="recordedAudioPlayer" class="custom-audio-player"></audio>
+                                <button type="button" class="btn-action primary full-width" id="submitRecordingBtn">
+                                    Check This Recording Now →
+                                </button>
+                            </div>
+
+                            <!-- Live speech-to-text transcript while speaking -->
+                            <div class="live-stt-box" id="liveSttBox">
+                                <div class="live-stt-label">Live Words Recognized (Microphone):</div>
+                                <div class="live-stt-content" id="liveSttContent">Spoken words will appear here in real time...</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 3: BATCH (MULTIPLE) RECORDING ANALYSIS -->
+            <div class="tab-pane hidden" id="pane-batch">
+                <section class="page-heading">
+                    <div class="eyebrow">BATCH PROCESSING</div>
+                    <h1>Check Multiple <span>Voice Recordings.</span></h1>
+                    <p class="lead-text">
+                        Upload up to 10 recordings at once to check them together and export a summary report.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel batch-upload-panel">
+                        <label class="upload-zone" for="batchAudioFiles">
+                            <input type="file" id="batchAudioFiles" multiple
+                                   accept=".wav,.mp3,.m4a,.aac,.ogg,.flac,.opus,.webm,.mp4,.3gp">
+                            <div class="upload-icon" aria-hidden="true">📁</div>
+                            <h3>Choose multiple voice recordings</h3>
+                            <p>Select multiple files from your device (up to 10 recordings)</p>
+                        </label>
+
+                        <div class="selected-batch-list hidden" id="selectedBatchList">
+                            <div class="batch-list-heading">Selected Recordings:</div>
+                            <ul id="batchFilesUl"></ul>
+                            <button type="button" class="btn-action primary" id="runBatchBtn">
+                                Start Checking All Recordings
+                            </button>
+                        </div>
+
+                        <!-- Batch summary results -->
+                        <div class="batch-results-panel hidden" id="batchResultsPanel">
+                            <div class="section-heading">
+                                <h3>Batch Screening Summary</h3>
+                                <button type="button" class="btn-small secondary" id="exportBatchCsvBtn">
+                                    Export Summary (CSV)
+                                </button>
+                            </div>
+                            <div class="batch-summary-cards">
+                                <div class="detail-card">
+                                    <span class="detail-label">Total Files Checked</span>
+                                    <strong id="batchTotalCount">0</strong>
+                                </div>
+                                <div class="detail-card">
+                                    <span class="detail-label">Typical Voice Pattern</span>
+                                    <strong id="batchTypicalCount">0</strong>
+                                </div>
+                                <div class="detail-card">
+                                    <span class="detail-label">Cognitive Change Pattern</span>
+                                    <strong id="batchChangeCount">0</strong>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="data-table" id="batchTable">
+                                    <thead>
+                                        <tr>
+                                            <th>File Name</th>
+                                            <th>Length</th>
+                                            <th>Screening Result</th>
+                                            <th>Typical Score</th>
+                                            <th>Changes Score</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="batchTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 4: ANALYSIS HISTORY -->
+            <div class="tab-pane hidden" id="pane-history">
+                <section class="page-heading">
+                    <div class="eyebrow">PAST RESULTS</div>
+                    <h1>Past Screening <span>History.</span></h1>
+                    <p class="lead-text">
+                        Review, search, sort, and download reports for your previous voice checks. All results are stored privately on your computer.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel history-panel">
+                        <div class="history-toolbar">
+                            <input type="text" id="historySearchInput" placeholder="Search by file name or notes..." class="form-input">
+                            <select id="historySortSelect" class="form-select">
+                                <option value="date_desc">Newest First</option>
+                                <option value="date_asc">Oldest First</option>
+                                <option value="score_desc">Highest AI Score</option>
+                                <option value="filename_asc">File Name (A-Z)</option>
+                            </select>
+                            <button type="button" class="btn-small secondary" id="refreshHistoryBtn">Refresh</button>
+                            <button type="button" class="btn-small danger" id="clearAllHistoryBtn">Clear All</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table" id="historyTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>File Name</th>
+                                        <th>Duration</th>
+                                        <th>Screening Result</th>
+                                        <th>AI Scores</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Loading past results...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 5: COMPARE TWO RESULTS -->
+            <div class="tab-pane hidden" id="pane-compare">
+                <section class="page-heading">
+                    <div class="eyebrow">COMPARISON TOOL</div>
+                    <h1>Compare Two <span>Voice Checks.</span></h1>
+                    <p class="lead-text">
+                        Select two past recordings to compare their voice details side by side. Variations between sessions reflect acoustic features, not a medical confirmation.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel compare-selector-panel">
+                        <div class="compare-selectors-row">
+                            <div class="form-group">
+                                <label for="compareSelectA">Select First Recording (A):</label>
+                                <select id="compareSelectA" class="form-select"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="compareSelectB">Select Second Recording (B):</label>
+                                <select id="compareSelectB" class="form-select"></select>
+                            </div>
+                            <button type="button" class="btn-action primary" id="runCompareBtn">Compare Now</button>
+                        </div>
+                    </div>
+
+                    <div class="compare-results-grid hidden" id="compareResultsGrid">
+                        <div class="panel compare-card" id="compareCardA">
+                            <h3>Recording A</h3>
+                            <div class="compare-body" id="compareBodyA"></div>
+                        </div>
+                        <div class="panel compare-card" id="compareCardB">
+                            <h3>Recording B</h3>
+                            <div class="compare-body" id="compareBodyB"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 6: HOW WELL THE AI WORKS (MODEL EVALUATION & INSIGHTS) -->
+            <div class="tab-pane hidden" id="pane-model-eval">
+                <section class="page-heading">
+                    <div class="eyebrow">AI MODEL EVALUATION &amp; INSIGHTS</div>
+                    <h1>How Well the <span>AI Works.</span></h1>
+                    <p class="lead-text">
+                        Transparent, cross-validated accuracy metrics and genuine feature importance calculated on actual research data.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <!-- Selected model notice -->
+                    <div class="panel" style="padding:0.75rem 1.25rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem;">
+                        <span style="font-size:1.4rem;" aria-hidden="true">&#x1F916;</span>
+                        <div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.07em;opacity:0.6;margin-bottom:0.15rem;">Active AI Model</div>
+                            <strong id="evalSelectedModel">Logistic Regression (45 Voice Features)</strong>
+                            <span style="opacity:0.6;font-size:0.8rem;margin-left:0.5rem;">Trained on ADReSSo 2021 Dataset &middot; Participant-Level 80/20 Split</span>
+                        </div>
+                    </div>
+
+                    <div class="eval-grid">
+                        <!-- Key Metrics Cards - held-out test set -->
+                        <div class="panel eval-card">
+                            <div class="eval-metric-number" id="evalBalancedAcc">57.4%</div>
+                            <div class="eval-metric-label">Balanced Accuracy (Held-Out Test)</div>
+                            <p class="eval-metric-desc">Tested on 33 completely unseen participants after training. Equal weight given to both groups.</p>
+                        </div>
+                        <div class="panel eval-card">
+                            <div class="eval-metric-number" id="evalSensitivity">64.7%</div>
+                            <div class="eval-metric-label">Sensitivity &mdash; Cognitive Changes Detected</div>
+                            <p class="eval-metric-desc">How often the AI correctly identified voice patterns linked to cognitive changes.</p>
+                        </div>
+                        <div class="panel eval-card">
+                            <div class="eval-metric-number" id="evalSpecificity">50.0%</div>
+                            <div class="eval-metric-label">Specificity &mdash; Typical Voices Identified</div>
+                            <p class="eval-metric-desc">How often the AI correctly recognised voices with typical, healthy speech patterns.</p>
+                        </div>
+                    </div>
+
+                    <!-- Extra held-out metrics row -->
+                    <div class="voice-details-grid" style="margin-bottom:1.25rem;">
+                        <div class="detail-card">
+                            <span class="detail-label">Precision</span>
+                            <strong id="evalPrecision">&mdash;</strong>
+                        </div>
+                        <div class="detail-card">
+                            <span class="detail-label">F1 Score</span>
+                            <strong id="evalF1">&mdash;</strong>
+                        </div>
+                        <div class="detail-card">
+                            <span class="detail-label">ROC-AUC Score</span>
+                            <strong id="evalROCAUC">&mdash;</strong>
+                        </div>
+                    </div>
+
+                    <!-- Confusion Matrix & Feature Importance -->
+                    <div class="content-grid-even">
+                        <div class="panel">
+                            <h3>Result Breakdown (Held-Out Test: 33 Participants)</h3>
+                            <p class="text-muted">How the AI performed on recordings it had never seen during training:</p>
+                            <div class="matrix-grid">
+                                <div class="matrix-cell tn">
+                                    <strong id="cmTN">8</strong>
+                                    <span>Typical Speech Correct (True Negatives)</span>
+                                </div>
+                                <div class="matrix-cell fp">
+                                    <strong id="cmFP">8</strong>
+                                    <span>Typical Speech Missed (False Positives)</span>
+                                </div>
+                                <div class="matrix-cell fn">
+                                    <strong id="cmFN">6</strong>
+                                    <span>Changes Missed (False Negatives)</span>
+                                </div>
+                                <div class="matrix-cell tp">
+                                    <strong id="cmTP">11</strong>
+                                    <span>Changes Correct (True Positives)</span>
+                                </div>
+                            </div>
+                            <p class="text-muted" style="margin-top:0.75rem;font-size:0.8rem;">
+                                &#x1F4CC; This is a research prototype. These numbers are from a small test set (n=33) and will vary with more data.
+                            </p>
+                        </div>
+
+                        <div class="panel">
+                            <h3>Most Influential Voice Features</h3>
+                            <p class="text-muted">The acoustic measurements that contributed most to the AI's decisions (Logistic Regression coefficients):</p>
+                            <div class="feature-importance-list" id="featureImportanceList">
+                                <div class="text-center">Loading feature importance...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Model Comparison Table (hidden until loaded) -->
+                    <div class="panel hidden" id="modelCompTablePanel">
+                        <h3>AI Model Comparison (5-Fold Cross-Validation on Training Set)</h3>
+                        <p class="text-muted">Three AI models were compared. The best-performing one was kept as the active model.</p>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>AI Model</th>
+                                        <th>Balanced Accuracy</th>
+                                        <th>F1 Score</th>
+                                        <th>ROC-AUC</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modelCompTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 7: DATASET EXPLORER -->
+            <div class="tab-pane hidden" id="pane-dataset">
+                <section class="page-heading">
+                    <div class="eyebrow">RESEARCH DATASET</div>
+                    <h1>Explore the <span>Training Dataset.</span></h1>
+                    <p class="lead-text">
+                        Learn about the standardized speech dataset used to train and test the acoustic screening model.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel dataset-overview-panel">
+                        <h2>ADReSSo 2021 Dataset Overview</h2>
+                        <p class="lead-text-small">
+                            The Alzheimer's Dementia Recognition through Spontaneous Speech (ADReSSo) benchmark includes high-quality acoustic recordings of participants describing the standardized "Cookie Theft" picture.
+                        </p>
+
+                        <div class="dataset-stats-grid">
+                            <div class="detail-card">
+                                <span class="detail-label">Total Audio Recordings</span>
+                                <strong id="datasetTotalFiles">166</strong>
+                            </div>
+                            <div class="detail-card">
+                                <span class="detail-label">Control / Typical Group</span>
+                                <strong id="datasetControlFiles">79</strong>
+                            </div>
+                            <div class="detail-card">
+                                <span class="detail-label">Cognitive Change Group</span>
+                                <strong id="datasetAdFiles">87</strong>
+                            </div>
+                            <div class="detail-card">
+                                <span class="detail-label">Average Recording Length</span>
+                                <strong id="datasetAvgDuration">77.5 seconds</strong>
+                            </div>
+                        </div>
+
+                        <div class="dataset-notes-box">
+                            <h3>Standardized Speech Task</h3>
+                            <p>
+                                Participants were invited to freely describe everything happening in the Boston Diagnostic Aphasia Examination "Cookie Theft" image. Spontaneous speech allows the AI to evaluate natural conversational cadence, hesitations, pitch inflections, and timbre.
+                            </p>
+                            <p class="mt-2 text-muted">
+                                🔒 Data compliance: Audio files are stored locally in accordance with research ethics and data protection agreements.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 8: SETTINGS & PRIVACY -->
+            <div class="tab-pane hidden" id="pane-settings">
+                <section class="page-heading">
+                    <div class="eyebrow">PREFERENCES</div>
+                    <h1>Settings &amp; <span>Privacy Controls.</span></h1>
+                    <p class="lead-text">
+                        Control where your data is stored, configure history retention, and adjust visual accessibility.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel settings-panel">
+                        <div class="settings-group">
+                            <h3>Data Retention &amp; Storage</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>History Retention Period</strong>
+                                    <p class="setting-desc">How long screening results are kept in your local database.</p>
+                                </div>
+                                <select id="settingRetentionDays" class="form-select">
+                                    <option value="7">7 Days</option>
+                                    <option value="30" selected>30 Days</option>
+                                    <option value="90">90 Days</option>
+                                    <option value="365">1 Year</option>
+                                    <option value="9999">Keep Indefinitely</option>
+                                </select>
+                            </div>
+
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Save Original Audio Recordings</strong>
+                                    <p class="setting-desc">By default, only acoustic metrics are stored to protect voice privacy.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="settingSaveAudio">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Display &amp; Accessibility</h3>
+                            <div class="setting-item">
+                                <div>
+                                    <strong>Font Size</strong>
+                                    <p class="setting-desc">Adjust dashboard text size for comfortable reading.</p>
+                                </div>
+                                <select id="settingFontSize" class="form-select">
+                                    <option value="small">Standard (14px)</option>
+                                    <option value="medium" selected>Comfortable (15px)</option>
+                                    <option value="large">Large (17px)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Clear Stored Data</h3>
+                            <p class="setting-desc">Permanently remove all saved screening results and notes from this device.</p>
+                            <button type="button" class="btn-action danger" id="settingsClearDataBtn">Delete All Stored History</button>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="button" class="btn-action primary" id="saveSettingsBtn">Save Settings</button>
+                            <span class="settings-status" id="settingsStatusText"></span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 9: APP STATUS & SYSTEM HEALTH -->
+            <div class="tab-pane hidden" id="pane-system">
+                <section class="page-heading">
+                    <div class="eyebrow">SYSTEM HEALTH</div>
+                    <h1>App Status &amp; <span>Diagnostics.</span></h1>
+                    <p class="lead-text">
+                        Verify backend connection, active decoders, machine learning model status, and error logs.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel system-panel">
+                        <div class="system-grid" id="systemGrid">
+                            <div class="system-item">
+                                <span class="sys-label">FastAPI Backend Status:</span>
+                                <strong id="sysBackendStatus" class="text-green">Connected (Port 8000)</strong>
+                            </div>
+                            <div class="system-item">
+                                <span class="sys-label">Trained ML Model:</span>
+                                <strong id="sysModelStatus">Loaded (RandomForestClassifier, 35 features)</strong>
+                            </div>
+                            <div class="system-item">
+                                <span class="sys-label">PyAV Audio Decoder:</span>
+                                <strong id="sysPyavStatus">Active (FFmpeg Bundled)</strong>
+                            </div>
+                            <div class="system-item">
+                                <span class="sys-label">Supported Audio Codecs:</span>
+                                <span id="sysCodecsList">WAV, MP3, M4A, AAC, OGG, FLAC, OPUS, WebM, MP4, 3GP</span>
+                            </div>
+                            <div class="system-item">
+                                <span class="sys-label">SQLite Local Database:</span>
+                                <strong id="sysDbStatus">Active (outputs/analysis_history.db)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 10: HELP & FREQUENTLY ASKED QUESTIONS -->
+            <div class="tab-pane hidden" id="pane-help">
+                <section class="page-heading">
+                    <div class="eyebrow">ASSISTANCE</div>
+                    <h1>Help &amp; <span>Frequently Asked Questions.</span></h1>
+                    <p class="lead-text">
+                        Everything you need to know about using the voice screening tool, microphone permissions, and interpreting results.
+                    </p>
+                </section>
+
+                <section class="tab-card-container">
+                    <div class="panel faq-panel">
+                        <div class="faq-item">
+                            <h3>What does this app do?</h3>
+                            <p>It analyzes the sound features of a spoken voice recording—such as pitch inflection, loudness variation, and pause lengths—to see whether they align more closely with study recordings from individuals with typical memory or individuals experiencing cognitive changes.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3>Does this give a medical diagnosis?</h3>
+                            <p>No. This tool is an experimental research system. It cannot confirm, diagnose, or rule out Alzheimer's disease or any medical condition. Please speak with a doctor or qualified clinician if you have health concerns.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3>What kind of microphone should I use?</h3>
+                            <p>Any standard built-in laptop microphone, smartphone recorder, or USB headset works well. Record in a quiet room and speak at a natural conversation volume.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3>Is my recording uploaded to the internet?</h3>
+                            <p>No. Audio files and screening data are processed on your computer. Your files are not shared publicly or used for advertising.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3>Why does the recording need to be at least 3 seconds long?</h3>
+                            <p>The AI needs enough continuous speech to measure vocal rhythm, pitch patterns, and pauses accurately.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Page Footer -->
+            <footer class="page-footer">
+                <span>VoiceCheck <span class="footer-dot">·</span> Cognitive Speech Screening Project</span>
+                <span>Designed for everyone · Private, accessible, and simple</span>
+            </footer>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
