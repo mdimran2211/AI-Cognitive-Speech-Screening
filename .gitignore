@@ -7,6 +7,7 @@ __pycache__/
 !.env.example
 .pytest_cache/
 .mypy_cache/
-backend/outputs/
+backend/outputs/*
+!backend/outputs/audio_only_model.joblib
 *.db
 dataset/
